@@ -11,7 +11,7 @@ program's quality.
 
 This script help translators to take care about those kind of errors/mistakes.
 
-#Usage:
+# Usage:
   *msg_ruby_po_checker.awk INPUT_RUBY_POFILE*
   or
   *msg_ruby_po_checker.awk INPUT_RUBY_POFILE OUTPUT_LOGFILE*
