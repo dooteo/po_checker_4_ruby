@@ -17,6 +17,9 @@
 
 
 # ---- ---- VERSIONS ---- ----
+# 0.0.5: Fixed bugs: fuzzy detection; 
+#              in error cases msgstr doubles first line when 'msgid ""' line is;
+#              '(' and ')' chars not belong to msg var.
 # 0.0.4: Added Copyright line
 # 0.0.3: Counts untranslated messages and added print to output logfile option.
 # 0.0.2: Fixed total messages count bug.
@@ -118,7 +121,8 @@ function is_fuzzy() {
 
 	# Cur line is a first non empty line..
 	# Check it out
-	if ($1 == "#,fuzzy") {
+
+	if (/#, *fuzzy/) {
 		return 1;
 	}
 
@@ -131,13 +135,9 @@ function is_fuzzy() {
 			break;
 		}
 
-		if ($1 == "#,fuzzy") {
+		if (/#, *fuzzy/) {
 			cur_fuzzy_msg=1;
 		}
-	}
-
-	if (cur_fuzzy_msg == 0) {
-		return cur_fuzzy_msg;
 	}
 
 	# ---- Ignore rest of fuzzy msg lines ----
@@ -169,7 +169,7 @@ function insert_vars_into_array(cleaned_arr_vars, cur_vars_str) {
 	for (j=2; j <= cur_vars_count; ++j) {
 
 		# ---- NOTE: Ruby uses placeholders like %{sevty}, ----
-		# ----       but it could be %{sevty}bugs where _bugs_are not part of var name...
+		# ----       but it could be %{sevty}bugs where _bugs_ is not part of var name...
 		# ----       gonna remove all {} outside part ----
 		if (substr(cleaned_arr_vars[j], 1, 1) == "{") {
 			var_pos = index(cleaned_arr_vars[j], "}");
@@ -177,8 +177,11 @@ function insert_vars_into_array(cleaned_arr_vars, cur_vars_str) {
 		} else {
 			var_item = cleaned_arr_vars[j];
 		}
+		# ---- Remove placeholders like 3$ from '%3$s'
 		var_item = gensub(/[0-9]*\$/, "", "1", var_item);
-		var_item = gensub(/\..*$|[\(\-_].*$/, "", "1", var_item);
+		# ---- Remove chars not part of vars )* til end, 
+		# ----   Ie: %s(whatever %s)whatever %s.whatever %s-whatever
+		var_item = gensub(/\..*$|[\(\)\-_].*$/, "", "1", var_item);
 		cleaned_arr_vars[j-1] = gensub(/}.*/, "}", "1", var_item);
 
 	}
@@ -368,8 +371,6 @@ function get_cur_msgstr_vars(vars_arr_msgstr, vars_arr_msgid, total_vars_msgid, 
 		# Empty content at msgstr line
 		if ( $2 == "\"\"" ) {
 			getline;
-			cur_msgstr_total_lines += 1;
-			cur_msgstr_msg[cur_msgstr_total_lines] = $0;
 			continue;
 		}
 
@@ -448,11 +449,10 @@ BEGIN {
 {
 
 	if (is_fuzzy()) {
+	    # Do not analyze current fuzzy message
 		total_fuzzy_msgs += 1;
 
-	}
-
-	if ( $1 == "msgid" ) {
+	} else if ( $1 == "msgid" ) {
 		result = 0;
 		cur_msg_id += 1;
 		cur_msgid_line_nmbr = NR;

@@ -17,3 +17,6 @@ This script help translators to take care about those kind of errors/mistakes.
   or
   
   *msg_ruby_po_checker.awk INPUT_RUBY_POFILE OUTPUT_LOGFILE*
+
+# NOTE:
+  gawk is required to run this script as long as mawk does not have functions like gensub()
