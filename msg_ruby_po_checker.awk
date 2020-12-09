@@ -17,7 +17,8 @@
 
 
 # ---- ---- VERSIONS ---- ----
-# 0.0.5: Fixed bugs: fuzzy detection; 
+# 0.0.6: function replacement: gsub() instead of gawk's gensub()
+# 0.0.5: Fixed bugs: fuzzy detection;
 #              in error cases msgstr doubles first line when 'msgid ""' line is;
 #              '(' and ')' chars not belong to msg var.
 # 0.0.4: Added Copyright line
@@ -156,12 +157,12 @@ function insert_vars_into_array(cleaned_arr_vars, cur_vars_str) {
 
 	# ---- cur_vars_str can have a %% symbol as well ----
 	# ---- gonna remove that %%, \n, \t symbols when they exists...
-	cur_vars = gensub(/%%|\\n|\\t/, "", "g", cur_vars_str);
+	gsub(/%%|\\n|\\t/, "", cur_vars_str);
 
 
 	# ---- gonna remove all chars except:  a-zA-Z0-9%{}_,.  ----
-	cur_vars = gensub(/[^a-zA-Z0-9\$%\{\}\(\)\-_,\.]+/, "", "g", cur_vars);
-	cur_vars_count = split(cur_vars, cleaned_arr_vars, "%");
+	gsub(/[^a-zA-Z0-9\$%\{\}\(\)\-_,\.]+/, "", cur_vars_str);
+	cur_vars_count = split(cur_vars_str, cleaned_arr_vars, "%");
 
 	# ---- as first char is always %, first left part does not exist, is empty----
 	# ---- reorganize array: shift all to one item less ----
@@ -178,11 +179,12 @@ function insert_vars_into_array(cleaned_arr_vars, cur_vars_str) {
 			var_item = cleaned_arr_vars[j];
 		}
 		# ---- Remove placeholders like 3$ from '%3$s'
-		var_item = gensub(/[0-9]*\$/, "", "1", var_item);
+		gsub(/[0-9]*\$/, "", var_item);
 		# ---- Remove chars not part of vars )* til end, 
 		# ----   Ie: %s(whatever %s)whatever %s.whatever %s-whatever
-		var_item = gensub(/\..*$|[\(\)\-_].*$/, "", "1", var_item);
-		cleaned_arr_vars[j-1] = gensub(/}.*/, "}", "1", var_item);
+		gsub(/\..*$|[\(\)\-_].*$/, "", var_item);
+		gsub(/}.*/, "}", var_item);
+		cleaned_arr_vars[j-1] = var_item;
 
 	}
 
