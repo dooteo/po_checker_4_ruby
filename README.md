@@ -31,48 +31,49 @@ use.
 
 For example, let's see a message like:
 <pre>
-  msgid ""
-  "The following %{nbugs} bug will be dodged:\n"
-  " %{blist}\n"
-  "Are you sure?"
-  msgid_plural ""
-  "The following %{nbugs} bugs will be dodged:\n"
-  " %{blist}\n"
-  "Are you sure?"
-  msgstr[0] ""
-  "Il seguente bug verrà evitato:\n"
-  " %{blist}\n"
-  "Si è sicuri?"
-  msgstr[1] ""
-  "I seguenti %{nbugs} bug verranno evitati:\n"
-  " %{blist}\n"
-  "Si è sicuri?"
+msgid ""
+"The following %{nbugs} bug will be dodged:\n"
+" %{blist}\n"
+"Are you sure?"
+msgid_plural ""
+"The following %{nbugs} bugs will be dodged:\n"
+" %{blist}\n"
+"Are you sure?"
+msgstr[0] ""
+"Il seguente bug verrà evitato:\n"
+" %{blist}\n"
+"Si è sicuri?"
+msgstr[1] ""
+"I seguenti %{nbugs} bug verranno evitati:\n"
+" %{blist}\n"
+"Si è sicuri?"
 </pre>
 That message is properly translated, even it has not contain %{nbugs} 
 variable for msgstr[0] case. 
 
 But this script will show a 'false positive' error message:
-
-  Error at message ID: 59     [line: 366]  <<<<
-  Error: different vars numbers. Msgid has: 2 != Msgstr has 1
-  ---- ---- Message: ---- ---- <<<<
-  msgid ""
-  "The following %{nbugs} bug will be dodged:\n"
-  " %{blist}\n"
-  "Are you sure?"
-  msgid_plural ""
-  "The following %{nbugs} bugs will be dodged:\n"
-  " %{blist}\n"
-  "Are you sure?"
-  msgstr[0] ""
-  "Il seguente bug verrà evitato:\n"
-  " %{blist}\n"
-  "Si è sicuri?"
-  msgstr[1] ""
-  "I seguenti %{nbugs} bug verranno evitati:\n"
-  " %{blist}\n"
-  "Si è sicuri?"
-  ---- ---- ---- ---- <<<<
+<pre>
+Error at message ID: 59     [line: 366]  <<<<
+Error: different vars numbers. Msgid has: 2 != Msgstr has 1
+---- ---- Message: ---- ---- <<<<
+msgid ""
+"The following %{nbugs} bug will be dodged:\n"
+" %{blist}\n"
+"Are you sure?"
+msgid_plural ""
+"The following %{nbugs} bugs will be dodged:\n"
+" %{blist}\n"
+"Are you sure?"
+msgstr[0] ""
+"Il seguente bug verrà evitato:\n"
+" %{blist}\n"
+"Si è sicuri?"
+msgstr[1] ""
+"I seguenti %{nbugs} bug verranno evitati:\n"
+" %{blist}\n"
+"Si è sicuri?"
+---- ---- ---- ---- <<<<
+</pre>
 
 This corner case is too complicated to solve. I’d rather let script as it is, 
 and consider those cases as ‘false positives’. Otherwise, it wont show errors 
