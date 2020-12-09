@@ -30,7 +30,7 @@ number, whenever it can be clearly inferred from the use of the form in
 use.
 
 For example, let's see a message like:
-
+<pre>
   msgid ""
   "The following %{nbugs} bug will be dodged:\n"
   " %{blist}\n"
@@ -47,7 +47,7 @@ For example, let's see a message like:
   "I seguenti %{nbugs} bug verranno evitati:\n"
   " %{blist}\n"
   "Si è sicuri?"
-
+</pre>
 That message is properly translated, even it has not contain %{nbugs} 
 variable for msgstr[0] case. 
 
