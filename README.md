@@ -16,7 +16,15 @@ This script help translators to take care about those kind of errors/mistakes.
   
   or
   
-  *msg_ruby_po_checker.awk INPUT_RUBY_POFILE OUTPUT_LOGFILE*
+  *msg_ruby_po_checker.awk logfile=OUTPUT_LOGFILE INPUT_RUBY_POFILE*
+
+  or
+  
+  *msg_ruby_po_checker.awk check_fuzzy="yes" INPUT_RUBY_POFILE*
+
+  or
+  
+  *msg_ruby_po_checker.awk check_fuzzy="yes" logfile=OUTPUT_LOGFILE INPUT_RUBY_POFILE*
 
 # Note about 'false positve' errors:
 
