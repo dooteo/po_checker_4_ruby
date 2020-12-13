@@ -1,6 +1,7 @@
 #!/usr/bin/awk -f
 #
 #   Copyright (c) 2020 Iñaki Larrañaga Murgoitio <dooteo@zundan.com>
+#   Copyright (c) 2020 Francesco Poli <invernomuto@paranoici.org>
 #
 #   This program is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -17,6 +18,8 @@
 
 
 # ---- ---- VERSIONS ---- ----
+# 0.0.7: Added option to check fuzzy messages; changed logfile option;
+#              fixed bug in total messages count
 # 0.0.6: function replacement: gsub() instead of gawk's gensub()
 # 0.0.5: Fixed bugs: fuzzy detection;
 #              in error cases msgstr doubles first line when 'msgid ""' line is;
@@ -35,10 +38,11 @@
 #  Usage:
 #    CUR_SCRIPT INPUT_RUBY_POFILE
 #    or
-#    CUR_SCRIPT INPUT_RUBY_POFILE OUTPUT_LOGFILE
-#
-#  If INPUT_RUBY_POFILE filename and OUTPUT_LOGFILE filename are the same,
-#  output will be written into filename with .log extension.
+#    CUR_SCRIPT logfile=OUTPUT_LOGFILE INPUT_RUBY_POFILE
+#    or
+#    CUR_SCRIPT check_fuzzy="yes" INPUT_RUBY_POFILE
+#    or
+#    CUR_SCRIPT check_fuzzy="yes" logfile=OUTPUT_LOGFILE INPUT_RUBY_POFILE
 #
 
 
@@ -421,6 +425,7 @@ function get_cur_msgstr_vars(vars_arr_msgstr, vars_arr_msgid, total_vars_msgid, 
 
 BEGIN {
 	logfile = "";
+        check_fuzzy = "no";
 	result = 0;
 	cur_msg_id = 0;
 	cur_msgid_line_nmbr=0;
@@ -435,24 +440,26 @@ BEGIN {
 	total_fuzzy_msgs = 0;
 	total_error_msgs = 0;
 
-	if (ARGC > 2) {
-		if (ARGV[1] == ARGV[2] ) {
-			logfile = ARGV[1] ".log";
-		} else {
-			logfile = ARGV[2];
-		}
-	}
-
-	print_log(logfile, 	".... Start analyze: " ARGV[1] "");
-	skip_header(logfile);
-	print_log(logfile, ".... Analyze PO messages ....");
+        header_done = "no";
 }
 
 {
 
-	if (is_fuzzy()) {
-	    # Do not analyze current fuzzy message
+        if (header_done == "no") {
+		print_log(logfile, ".... Start analyze: " FILENAME "");
+		skip_header(logfile);
+		print_log(logfile, ".... Analyze PO messages ....");
+		header_done = "yes";
+        }
+
+        this_is_fuzzy = is_fuzzy();
+        if (this_is_fuzzy) {
 		total_fuzzy_msgs += 1;
+        }
+
+	if (this_is_fuzzy && check_fuzzy != "yes") {
+	    # Do not analyze current fuzzy message
+		cur_msg_id += 1;
 
 	} else if ( $1 == "msgid" ) {
 		result = 0;
